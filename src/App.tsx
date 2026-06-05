@@ -577,8 +577,7 @@ export default function App() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex flex-col text-left">
-                            <span>Come to Me at</span>
-                            <span className="text-[9px] font-mono font-normal normal-case text-zinc-500 mt-0.5 animate-pulse">12:30 – 14:00 Phys. Presence</span>
+                            <span>Meet Up Time</span>
                           </div>
                           <ArrowUpDown className={`w-3.5 h-3.5 ml-1 ${sortField === 'presentationDay' ? 'text-black font-bold' : 'text-zinc-400'}`} />
                         </div>
