@@ -205,8 +205,8 @@ export default async function handler(req, res) {
       posters,
     });
   } catch (error) {
-    return res.status(200).json({
-      source: 'fallback',
+    return res.status(502).json({
+      source: 'google-sheet',
       fetchedAt: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'Unknown Google Sheet fetch error.',
       posters: [],

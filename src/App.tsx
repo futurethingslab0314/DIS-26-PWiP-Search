@@ -15,7 +15,6 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-import { POSTER_DATASET } from './data/posters';
 import { Poster, PosterApiResponse, PresentationDay } from './types';
 import DisLogo from './components/DisLogo';
 
@@ -49,8 +48,8 @@ function getThemeTableStyles(theme: string) {
 
 export default function App() {
   // --- States ---
-  const [posters, setPosters] = useState<Poster[]>(POSTER_DATASET);
-  const [dataSource, setDataSource] = useState<'google-sheet' | 'fallback'>('fallback');
+  const [posters, setPosters] = useState<Poster[]>([]);
+  const [dataSource, setDataSource] = useState<'google-sheet'>('google-sheet');
   const [dataError, setDataError] = useState<string>('');
   const [isLoadingPosters, setIsLoadingPosters] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,8 +85,8 @@ export default function App() {
         }
 
         const message = error instanceof Error ? error.message : 'Unable to load Google Sheet data.';
-        setPosters(POSTER_DATASET);
-        setDataSource('fallback');
+        setPosters([]);
+        setDataSource('google-sheet');
         setDataError(message);
       } finally {
         if (!controller.signal.aborted) {
@@ -495,14 +494,16 @@ export default function App() {
             {filteredPosters.length} Posters Filtered // {posters.length} Total Registered
           </span>
           <span className="uppercase text-right">
-            {isLoadingPosters
-              ? 'Loading poster data...'
-              : dataSource === 'google-sheet'
-                ? 'Live from Google Sheet'
-                : 'Using fallback dataset'}
+            {isLoadingPosters ? 'Loading poster data...' : 'Live from Google Sheet'}
             {dataError ? ` // ${dataError}` : ''}
           </span>
         </div>
+
+        {dataError && (
+          <div className="border border-[#F3C6C8] bg-[#FFF4F4] px-4 py-3 text-sm text-[#7D1820]">
+            Google Sheet data could not be loaded. The site is not using any mock data.
+          </div>
+        )}
 
         {/* Main Content Area */}
         <main>

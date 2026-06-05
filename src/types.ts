@@ -11,7 +11,7 @@ export interface Poster {
 }
 
 export interface PosterApiResponse {
-  source: 'google-sheet' | 'fallback';
+  source: 'google-sheet';
   fetchedAt: string;
   error?: string;
   posters: Poster[];

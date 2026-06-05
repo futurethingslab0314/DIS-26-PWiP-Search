@@ -4,7 +4,7 @@ This is a Vite + React site for browsing the DIS Posters & Work in Progress data
 
 ## Data Source
 
-The app now prefers live data from Google Sheets through the Vercel serverless endpoint at `/api/posters`.
+The app reads live data from Google Sheets through the Vercel serverless endpoint at `/api/posters`.
 
 Expected Google Sheet columns:
 
@@ -16,7 +16,7 @@ Expected Google Sheet columns:
 - `Contact Email` (optional)
 - `Abstract` (optional)
 
-If Google Sheet settings are missing or the fetch fails, the site automatically falls back to the local mock dataset in [src/data/posters.ts](/Users/yutingcheng/Library/CloudStorage/GoogleDrive-futurethingslab0314@gmail.com/My%20Drive/Future%20Things%20Lab/website/DIS-26-PWiP-Search/src/data/posters.ts).
+There is no local mock poster dataset anymore. If Google Sheet loading fails, the site shows an error state instead of fallback content.
 
 ## Local Development
 
