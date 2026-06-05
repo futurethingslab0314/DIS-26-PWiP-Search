@@ -713,16 +713,13 @@ export default function App() {
         <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center md:text-left">
             <div>
-              &copy; 2026 ACM DIS Poster Search. Crafted matching the Designing Interactive Systems visual standards.
-            </div>
-            <div className="text-[10px] text-stone-500">
-              This application has zero tracker cookies, zero external telemetry models, and relies strictly on client-side sandboxed stores.
+              &copy; 2026 ACM DIS PWiP Poster Search.
             </div>
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-dis-accent font-bold">DIS 2026</span>
             <span className="text-stone-600">|</span>
-            <span className="text-[10px] text-stone-500">Companion App v1.1.0</span>
+            <span className="text-[10px] text-stone-500">Singapore</span>
           </div>
         </div>
       </footer>
