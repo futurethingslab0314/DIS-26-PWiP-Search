@@ -1,0 +1,6 @@
+{
+  "name": "DIS 2026 PWiP Poster Search",
+  "description": "Official-style search and browse page for the DIS 2026 Pictorials and Work in Progress (PWiP) posters, featuring filtering by theme and presentation day.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

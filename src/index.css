@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --color-dis: #901A1E;
+  --color-dis-dark: #721215;
+  --color-dis-light: #FFF5F5;
+  --color-dis-accent: #E1A7A9;
+  --color-dis-border: #F3E3E4;
+}
+
+/* Base style resets to align with Clean Minimalism */
+body {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar to keep layout premium and minimal */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+::-webkit-scrollbar-thumb {
+  background: #e5e5e5;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #cccccc;
+}
+
+/* Academic Clean Minimalism Design Classes */
+.dis-brand-title {
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.filter-btn-active {
+  border-bottom: 2px solid #901A1E;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.poster-card {
+  border: 1px solid #e5e5e5;
+  background-color: #ffffff;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.poster-card:hover {
+  border-color: #901A1E;
+  box-shadow: 0 4px 12px rgba(144, 26, 30, 0.05);
+}
+
+.meta-label {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #71717a;
+}
+
+
