@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { 
   Search, 
@@ -16,23 +16,75 @@ import {
 } from 'lucide-react';
 
 import { POSTER_DATASET } from './data/posters';
-import { Poster, PresentationDay } from './types';
+import { Poster, PosterApiResponse, PresentationDay } from './types';
 import DisLogo from './components/DisLogo';
+
+const DAY_OPTIONS: PresentationDay[] = ['Monday (15th)', 'Tuesday (16th)', 'Wednesday (17th)'];
+const POSTER_API_URL = import.meta.env.VITE_POSTER_DATA_URL || '/api/posters';
+
+function formatThemeLabel(theme: string) {
+  return theme.replace(/^\d+\.\s*/, '');
+}
 
 export default function App() {
   // --- States ---
+  const [posters, setPosters] = useState<Poster[]>(POSTER_DATASET);
+  const [dataSource, setDataSource] = useState<'google-sheet' | 'fallback'>('fallback');
+  const [dataError, setDataError] = useState<string>('');
+  const [isLoadingPosters, setIsLoadingPosters] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTheme, setSelectedTheme] = useState('All');
   const [selectedDay, setSelectedDay] = useState<PresentationDay | 'All'>('All');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
-  const [sortField, setSortField] = useState<'paperId' | 'title' | 'contactAuthor' | 'presentationDay'>('paperId');
+  const [sortField, setSortField] = useState<'theme' | 'paperId' | 'title' | 'contactAuthor' | 'presentationDay'>('paperId');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadPosters() {
+      try {
+        setIsLoadingPosters(true);
+        const response = await fetch(POSTER_API_URL, { signal: controller.signal });
+
+        if (!response.ok) {
+          throw new Error(`Poster API returned ${response.status}`);
+        }
+
+        const payload = (await response.json()) as PosterApiResponse;
+        if (!payload.posters?.length) {
+          throw new Error('Poster API returned no poster rows.');
+        }
+
+        setPosters(payload.posters);
+        setDataSource(payload.source);
+        setDataError(payload.error ?? '');
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        const message = error instanceof Error ? error.message : 'Unable to load Google Sheet data.';
+        setPosters(POSTER_DATASET);
+        setDataSource('fallback');
+        setDataError(message);
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingPosters(false);
+        }
+      }
+    }
+
+    loadPosters();
+
+    return () => controller.abort();
+  }, []);
 
   // --- Theme Tracks Lookup ---
   const themeTracks = useMemo(() => {
-    const list = Array.from(new Set(POSTER_DATASET.map(p => p.theme)));
+    const list = Array.from(new Set(posters.map((poster) => poster.theme)));
     return ['All', ...list.sort()];
-  }, []);
+  }, [posters]);
 
   // --- Handlers ---
   const handleClearFilters = () => {
@@ -70,7 +122,7 @@ export default function App() {
 
   // --- Filter and Sort Core Logic ---
   const filteredPosters = useMemo(() => {
-    return POSTER_DATASET.filter(poster => {
+    return posters.filter(poster => {
       // 1. Full-text matches query (combining ID, title, author, email, abstract)
       const query = searchQuery.trim().toLowerCase();
       const matchesSearch = !query || 
@@ -107,17 +159,17 @@ export default function App() {
       if (valueA > valueB) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [searchQuery, selectedTheme, selectedDay, sortField, sortOrder]);
+  }, [posters, searchQuery, selectedTheme, selectedDay, sortField, sortOrder]);
 
   // --- Statistics Computing ---
   const stats = useMemo(() => {
-    const total = POSTER_DATASET.length;
-    const mondayCount = POSTER_DATASET.filter(p => p.presentationDay?.includes('Monday')).length;
-    const tuesdayCount = POSTER_DATASET.filter(p => p.presentationDay?.includes('Tuesday')).length;
-    const wednesdayCount = POSTER_DATASET.filter(p => p.presentationDay?.includes('Wednesday')).length;
+    const total = posters.length;
+    const mondayCount = posters.filter((poster) => poster.presentationDay?.includes('Monday')).length;
+    const tuesdayCount = posters.filter((poster) => poster.presentationDay?.includes('Tuesday')).length;
+    const wednesdayCount = posters.filter((poster) => poster.presentationDay?.includes('Wednesday')).length;
 
     return { total, mondayCount, tuesdayCount, wednesdayCount };
-  }, []);
+  }, [posters]);
 
   // --- Rich Highlight Match Helper ---
   const renderHighlighted = (text: string, search: string) => {
@@ -305,7 +357,7 @@ export default function App() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             
             {/* Horizontal Dates Underlined Menu */}
-            <div className="flex gap-8 border-b-0">
+            <div className="flex gap-8 border-b-0 flex-wrap">
               <button 
                 onClick={() => { setSelectedDay('All'); }}
                 className={`pb-1 text-sm transition-colors font-mono cursor-pointer uppercase ${
@@ -316,82 +368,38 @@ export default function App() {
               >
                 ALL DATES
               </button>
-              <button 
-                onClick={() => { setSelectedDay('Monday (15th)'); }}
-                className={`pb-1 text-sm transition-colors font-mono cursor-pointer uppercase ${
-                  selectedDay === 'Monday (15th)'
-                    ? 'filter-btn-active font-semibold' 
-                    : 'text-zinc-400 hover:text-black font-semibold'
-                }`}
-              >
-                JUNE 15
-              </button>
-              <button 
-                onClick={() => { setSelectedDay('Tuesday (16th)'); }}
-                className={`pb-1 text-sm transition-colors font-mono cursor-pointer uppercase ${
-                  selectedDay === 'Tuesday (16th)'
-                    ? 'filter-btn-active font-semibold' 
-                    : 'text-zinc-400 hover:text-black font-semibold'
-                }`}
-              >
-                JUNE 16
-              </button>
-              <button 
-                onClick={() => { setSelectedDay('Wednesday (17th)'); }}
-                className={`pb-1 text-sm transition-colors font-mono cursor-pointer uppercase ${
-                  selectedDay === 'Wednesday (17th)'
-                    ? 'filter-btn-active font-semibold' 
-                    : 'text-zinc-400 hover:text-black font-semibold'
-                }`}
-              >
-                JUNE 17
-              </button>
+              {DAY_OPTIONS.map((day) => (
+                <button 
+                  key={day}
+                  onClick={() => { setSelectedDay(day); }}
+                  className={`pb-1 text-sm transition-colors font-mono cursor-pointer uppercase ${
+                    selectedDay === day
+                      ? 'filter-btn-active font-semibold' 
+                      : 'text-zinc-400 hover:text-black font-semibold'
+                  }`}
+                >
+                  {day.replace(/\(.+\)/, '').trim().replace('Monday', 'JUNE 15').replace('Tuesday', 'JUNE 16').replace('Wednesday', 'JUNE 17')}
+                </button>
+              ))}
             </div>
 
             {/* Simple Rounded Theme Select Pills */}
             <div className="flex flex-wrap items-center gap-3">
               <span className="meta-label">Themes:</span>
               <div className="flex flex-wrap gap-1.5">
-                <button
-                  onClick={() => setSelectedTheme('All')}
-                  className={`px-3 py-1 text-[11px] font-medium border rounded-full transition-all cursor-pointer ${
-                    selectedTheme === 'All'
-                      ? 'bg-black text-white border-black font-medium'
-                      : 'border-zinc-205 text-zinc-650 hover:border-black bg-white'
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  onClick={() => setSelectedTheme('1. AI & Generative Systems')}
-                  className={`px-3 py-1 text-[11px] font-medium border rounded-full transition-all cursor-pointer ${
-                    selectedTheme === '1. AI & Generative Systems'
-                      ? 'bg-black text-white border-black font-medium'
-                      : 'border-zinc-205 text-zinc-650 hover:border-[#901A1E] bg-white'
-                  }`}
-                >
-                  AI & Generative
-                </button>
-                <button
-                  onClick={() => setSelectedTheme('2. Creative Practices & Materials')}
-                  className={`px-3 py-1 text-[11px] font-medium border rounded-full transition-all cursor-pointer ${
-                    selectedTheme === '2. Creative Practices & Materials'
-                      ? 'bg-black text-white border-black font-medium'
-                      : 'border-zinc-205 text-zinc-650 hover:border-[#901A1E] bg-white'
-                  }`}
-                >
-                  Creative & Materials
-                </button>
-                <button
-                  onClick={() => setSelectedTheme('3. People, Groups, & Communities')}
-                  className={`px-3 py-1 text-[11px] font-medium border rounded-full transition-all cursor-pointer ${
-                    selectedTheme === '3. People, Groups, & Communities'
-                      ? 'bg-black text-white border-black font-medium'
-                      : 'border-zinc-205 text-zinc-650 hover:border-[#901A1E] bg-white'
-                  }`}
-                >
-                  People & Communities
-                </button>
+                {themeTracks.map((theme) => (
+                  <button
+                    key={theme}
+                    onClick={() => setSelectedTheme(theme)}
+                    className={`px-3 py-1 text-[11px] font-medium border rounded-full transition-all cursor-pointer ${
+                      selectedTheme === theme
+                        ? 'bg-black text-white border-black font-medium'
+                        : 'border-zinc-205 text-zinc-650 hover:border-[#901A1E] bg-white'
+                    }`}
+                  >
+                    {theme === 'All' ? 'All' : formatThemeLabel(theme)}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -435,7 +443,7 @@ export default function App() {
 
                 {selectedTheme !== 'All' && (
                   <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-zinc-100 text-[10px] font-mono text-zinc-800 uppercase tracking-tight">
-                    <span>{selectedTheme.split('. ')[1]}</span>
+                    <span>{formatThemeLabel(selectedTheme)}</span>
                     <button onClick={() => setSelectedTheme('All')} className="hover:text-black"><X className="w-3 h-3" /></button>
                   </span>
                 )}
@@ -463,7 +471,15 @@ export default function App() {
         {/* Results Info Counter */}
         <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono tracking-wider" id="results-meta-indicators">
           <span className="uppercase">
-            {filteredPosters.length} Posters Filtered // {POSTER_DATASET.length} Total Registered
+            {filteredPosters.length} Posters Filtered // {posters.length} Total Registered
+          </span>
+          <span className="uppercase text-right">
+            {isLoadingPosters
+              ? 'Loading poster data...'
+              : dataSource === 'google-sheet'
+                ? 'Live from Google Sheet'
+                : 'Using fallback dataset'}
+            {dataError ? ` // ${dataError}` : ''}
           </span>
         </div>
 

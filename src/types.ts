@@ -9,3 +9,10 @@ export interface Poster {
   presentationDay: PresentationDay;
   abstract?: string; // Adding a brief academic abstract to enable advanced search experiences!
 }
+
+export interface PosterApiResponse {
+  source: 'google-sheet' | 'fallback';
+  fetchedAt: string;
+  error?: string;
+  posters: Poster[];
+}
