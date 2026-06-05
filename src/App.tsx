@@ -240,7 +240,7 @@ export default function App() {
             <div>
               <div className="space-y-2 mt-2">
                 <p className="text-zinc-500 font-sans text-xs tracking-wider uppercase font-semibold">
-                  Posters & Work in Progress Companion
+                  PWiP (Poster) Quick Search Page
                 </p>
                 <div id="attendance-disclaimer-panel" className="text-xs bg-zinc-50 border border-zinc-200 p-5 max-w-4xl leading-relaxed text-zinc-800 font-sans shadow-2xs space-y-3 rounded-none">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
