@@ -176,7 +176,7 @@ function buildGoogleSheetCsvUrl() {
   return `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&gid=${gid}`;
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   const csvUrl = buildGoogleSheetCsvUrl();
 
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=3600');
@@ -212,4 +212,4 @@ module.exports = async (req, res) => {
       posters: [],
     });
   }
-};
+}
