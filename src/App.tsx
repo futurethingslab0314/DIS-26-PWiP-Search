@@ -17,6 +17,7 @@ import {
 
 import { Poster, PosterApiResponse, PresentationDay } from './types';
 import DisLogo from './components/DisLogo';
+import { siteCopy } from './content/siteCopy';
 
 const DAY_OPTIONS: PresentationDay[] = ['Monday (15th)', 'Tuesday (16th)', 'Wednesday (17th)'];
 const POSTER_API_URL = import.meta.env.VITE_POSTER_DATA_URL || '/api/posters';
@@ -60,6 +61,10 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
+    document.title = siteCopy.page.title;
+  }, []);
+
+  useEffect(() => {
     const controller = new AbortController();
 
     async function loadPosters() {
@@ -73,7 +78,7 @@ export default function App() {
 
         const payload = (await response.json()) as PosterApiResponse;
         if (!payload.posters?.length) {
-          throw new Error('Poster API returned no poster rows.');
+          throw new Error(siteCopy.results.apiNoRows);
         }
 
         setPosters(payload.posters);
@@ -84,7 +89,7 @@ export default function App() {
           return;
         }
 
-        const message = error instanceof Error ? error.message : 'Unable to load Google Sheet data.';
+        const message = error instanceof Error ? error.message : siteCopy.results.apiLoadFailed;
         setPosters([]);
         setDataSource('google-sheet');
         setDataError(message);
@@ -239,35 +244,47 @@ export default function App() {
             <div>
               <div className="space-y-2 mt-2">
                 <p className="text-zinc-500 font-sans text-xs tracking-wider uppercase font-semibold">
-                  PWiP (Poster) Quick Search Page
+                  {siteCopy.header.subtitle}
                 </p>
                 <div id="attendance-disclaimer-panel" className="text-xs bg-zinc-50 border border-zinc-200 p-5 max-w-4xl leading-relaxed text-zinc-800 font-sans shadow-2xs space-y-3 rounded-none">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <h4 className="text-[11px] uppercase font-mono font-bold text-black tracking-wider mb-1 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 bg-[#901A1E] rounded-full inline-block"></span>
-                        Lunch Break Station Attendance
+                        {siteCopy.disclaimer.lunchAttendance.title}
                       </h4>
                       <p className="text-stone-600 font-sans text-xs pl-3 leading-relaxed">
-                        The specific day indicates when the author preferentially intends to be present at their poster station for presentation and discussion during the conference <strong>Lunch Break (12:30 – 14:00)</strong>.
+                        {siteCopy.disclaimer.lunchAttendance.bodyPrefix}
+                        <strong>{siteCopy.disclaimer.lunchAttendance.bodyHighlight}</strong>
+                        {siteCopy.disclaimer.lunchAttendance.bodySuffix}
                       </p>
                     </div>
 
                     <div className="md:border-l md:border-zinc-200 md:pl-4">
                       <h4 className="text-[11px] uppercase font-mono font-bold text-black tracking-wider mb-1 flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 bg-[#901A1E] rounded-full inline-block"></span>
-                        3-Day Full Exhibition & Connection
+                        {siteCopy.disclaimer.fullExhibition.title}
                       </h4>
                       <p className="text-stone-600 font-sans text-xs pl-3 leading-relaxed">
-                        All physical posters remain <strong>on display during all 3 days of the conference</strong>. Attendees are welcome to visit their posters at any time and connect with authors.
+                        {siteCopy.disclaimer.fullExhibition.bodyPrefix}
+                        <strong>{siteCopy.disclaimer.fullExhibition.bodyHighlight}</strong>
+                        {siteCopy.disclaimer.fullExhibition.bodySuffix}
                       </p>
                     </div>
                   </div>
 
                   <div className="border-t border-zinc-200 pt-3 flex items-start gap-2 text-zinc-500 text-[11px] pl-3 italic font-sans animate-pulse">
-                    <span className="font-mono font-bold text-[#901A1E] uppercase not-italic">EXHIBITION RECEPTION DINNER:</span>
+                    <span className="font-mono font-bold text-[#901A1E] uppercase not-italic">
+                      {siteCopy.disclaimer.receptionDinner.label}
+                    </span>
                     <span>
-                      In addition, <strong>all registered authors</strong> will also be physically present at their posters on <strong>Monday (June 15)</strong> during the official afternoon <strong>Exhibition Reception Dinner</strong> to discuss with fellow attendees.
+                      {siteCopy.disclaimer.receptionDinner.bodyPrefix}
+                      <strong>{siteCopy.disclaimer.receptionDinner.bodyHighlightAuthors}</strong>
+                      {siteCopy.disclaimer.receptionDinner.bodyMiddle}
+                      <strong>{siteCopy.disclaimer.receptionDinner.bodyHighlightDate}</strong>
+                      {siteCopy.disclaimer.receptionDinner.bodyMiddle2}
+                      <strong>{siteCopy.disclaimer.receptionDinner.bodyHighlightEvent}</strong>
+                      {siteCopy.disclaimer.receptionDinner.bodySuffix}
                     </span>
                   </div>
                 </div>
@@ -276,7 +293,7 @@ export default function App() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <span className="text-[10px] font-mono tracking-wider text-zinc-400 font-bold">VIEW:</span>
+            <span className="text-[10px] font-mono tracking-wider text-zinc-400 font-bold">{siteCopy.viewMode.label}</span>
             <div className="inline-flex bg-zinc-100 p-0.5 rounded-lg border border-zinc-200" id="list-grid-viewmode-toggle">
               <button
                 onClick={() => setViewMode('table')}
@@ -285,10 +302,10 @@ export default function App() {
                     ? 'bg-white text-black font-bold shadow-xs border border-zinc-200'
                     : 'text-zinc-500 hover:text-black'
                 }`}
-                title="Spreadsheet list layout (matches reference)"
+                title={siteCopy.viewMode.spreadsheetTitle}
               >
                 <List className="w-3.5 h-3.5" />
-                <span>Spreadsheet</span>
+                <span>{siteCopy.viewMode.spreadsheet}</span>
               </button>
               <button
                 onClick={() => setViewMode('grid')}
@@ -297,10 +314,10 @@ export default function App() {
                     ? 'bg-white text-black font-bold shadow-xs border border-zinc-200'
                     : 'text-zinc-500 hover:text-black'
                 }`}
-                title="Modern card grid layout"
+                title={siteCopy.viewMode.cardGridTitle}
               >
                 <Grid className="w-3.5 h-3.5" />
-                <span>Card Grid</span>
+                <span>{siteCopy.viewMode.cardGrid}</span>
               </button>
             </div>
           </div>
@@ -317,9 +334,9 @@ export default function App() {
                 : 'border-[#e5e5e5] bg-white hover:border-black'
             }`}
           >
-            <div className="meta-label">Total Posters</div>
+            <div className="meta-label">{siteCopy.stats.totalPosters}</div>
             <div className="text-3xl font-display font-bold text-stone-950 mt-1">{stats.total}</div>
-            <div className="text-[9px] font-mono text-zinc-400 mt-1.5 uppercase tracking-wide">All Tracks</div>
+            <div className="text-[9px] font-mono text-zinc-400 mt-1.5 uppercase tracking-wide">{siteCopy.stats.allTracks}</div>
           </button>
 
           <button
@@ -332,10 +349,10 @@ export default function App() {
           >
             <div className="meta-label flex items-center gap-1 text-[#901A1E]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#901A1E]" />
-              Mon 15th
+              {siteCopy.stats.monday.shortLabel}
             </div>
             <div className="text-3xl font-display font-bold text-stone-950 mt-1">{stats.mondayCount}</div>
-            <div className="text-[9px] font-mono text-zinc-400 mt-1.5 uppercase tracking-wide">June 15</div>
+            <div className="text-[9px] font-mono text-zinc-400 mt-1.5 uppercase tracking-wide">{siteCopy.stats.monday.dateLabel}</div>
           </button>
 
           <button
@@ -348,10 +365,10 @@ export default function App() {
           >
             <div className="meta-label flex items-center gap-1 text-[#03543F]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-              Tue 16th
+              {siteCopy.stats.tuesday.shortLabel}
             </div>
             <div className="text-3xl font-display font-bold text-stone-950 mt-1">{stats.tuesdayCount}</div>
-            <div className="text-[9px] font-mono text-zinc-400 mt-1.5 uppercase tracking-wide">June 16</div>
+            <div className="text-[9px] font-mono text-zinc-400 mt-1.5 uppercase tracking-wide">{siteCopy.stats.tuesday.dateLabel}</div>
           </button>
 
           <button
@@ -364,10 +381,10 @@ export default function App() {
           >
             <div className="meta-label flex items-center gap-1 text-[#1E429F]">
               <span className="w-1.5 h-1.5 rounded-full bg-sky-600" />
-              Wed 17th
+              {siteCopy.stats.wednesday.shortLabel}
             </div>
             <div className="text-3xl font-display font-bold text-stone-950 mt-1">{stats.wednesdayCount}</div>
-            <div className="text-[9px] font-mono text-zinc-400 mt-1.5 uppercase tracking-wide">June 17</div>
+            <div className="text-[9px] font-mono text-zinc-400 mt-1.5 uppercase tracking-wide">{siteCopy.stats.wednesday.dateLabel}</div>
           </button>
 
         </section>
@@ -386,7 +403,7 @@ export default function App() {
                     : 'text-zinc-400 hover:text-black font-semibold'
                 }`}
               >
-                ALL DATES
+                {siteCopy.filters.allDates}
               </button>
               {DAY_OPTIONS.map((day) => (
                 <button 
@@ -398,14 +415,14 @@ export default function App() {
                       : 'text-zinc-400 hover:text-black font-semibold'
                   }`}
                 >
-                  {day.replace(/\(.+\)/, '').trim().replace('Monday', 'JUNE 15').replace('Tuesday', 'JUNE 16').replace('Wednesday', 'JUNE 17')}
+                  {siteCopy.filters.dateTabLabels[day]}
                 </button>
               ))}
             </div>
 
             {/* Simple Rounded Theme Select Pills */}
             <div className="flex flex-wrap items-center gap-3">
-              <span className="meta-label">Themes:</span>
+              <span className="meta-label">{siteCopy.filters.themesLabel}</span>
               <div className="flex flex-wrap gap-1.5">
                 {themeTracks.map((theme) => (
                   <button
@@ -417,7 +434,7 @@ export default function App() {
                         : 'border-zinc-205 text-zinc-650 hover:border-[#901A1E] bg-white'
                     }`}
                   >
-                    {theme === 'All' ? 'All' : formatThemeLabel(theme)}
+                    {theme === 'All' ? siteCopy.filters.allThemes : formatThemeLabel(theme)}
                   </button>
                 ))}
               </div>
@@ -432,7 +449,7 @@ export default function App() {
             </span>
             <input
               type="text"
-              placeholder="Search Paper ID, title words, author, or abstract text..."
+              placeholder={siteCopy.filters.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-10 py-3 bg-zinc-50 border border-zinc-200 text-sm focus:outline-hidden focus:ring-1 focus:ring-black focus:border-black focus:bg-white text-zinc-900 transition-all font-sans"
@@ -441,7 +458,7 @@ export default function App() {
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute inset-y-0 right-3 flex items-center text-zinc-400 hover:text-black"
-                aria-label="Clear query search"
+                aria-label={siteCopy.filters.clearSearchAriaLabel}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -452,7 +469,7 @@ export default function App() {
           {(searchQuery || selectedTheme !== 'All' || selectedDay !== 'All') && (
             <div className="flex flex-wrap items-center justify-between pt-1 gap-2">
               <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider">ACTIVE SPECIFICATIONS:</span>
+                <span className="text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider">{siteCopy.filters.activeSpecifications}</span>
                 
                 {searchQuery && (
                   <span className="inline-flex items-center space-x-1 px-2 py-0.5 bg-zinc-100 text-[10px] font-mono text-zinc-800 uppercase tracking-tight">
@@ -482,7 +499,7 @@ export default function App() {
                 id="clear-filters-action"
               >
                 <RefreshCw className="w-3 h-3" />
-                Reset Search Filters
+                {siteCopy.filters.resetFilters}
               </button>
             </div>
           )}
@@ -491,17 +508,17 @@ export default function App() {
         {/* Results Info Counter */}
         <div className="flex items-center justify-between text-[10px] text-zinc-500 font-mono tracking-wider" id="results-meta-indicators">
           <span className="uppercase">
-            {filteredPosters.length} Posters Filtered // {posters.length} Total Registered
+            {siteCopy.results.filteredCount(filteredPosters.length, posters.length)}
           </span>
           <span className="uppercase text-right">
-            {isLoadingPosters ? 'Loading poster data...' : 'Live from Google Sheet'}
+            {isLoadingPosters ? siteCopy.results.loading : siteCopy.results.liveSource}
             {dataError ? ` // ${dataError}` : ''}
           </span>
         </div>
 
         {dataError && (
           <div className="border border-[#F3C6C8] bg-[#FFF4F4] px-4 py-3 text-sm text-[#7D1820]">
-            Google Sheet data could not be loaded. The site is not using any mock data.
+            {siteCopy.results.dataLoadError}
           </div>
         )}
 
@@ -514,9 +531,9 @@ export default function App() {
                 <HelpCircle className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="font-display font-bold text-lg text-stone-900">No matching posters found</h3>
+                <h3 className="font-display font-bold text-lg text-stone-900">{siteCopy.emptyState.title}</h3>
                 <p className="text-sm text-stone-500 font-sans">
-                  Try clearing your search query or setting the Theme/Day dropdowns to "All Themes Tracks" to broaden your search.
+                  {siteCopy.emptyState.description}
                 </p>
               </div>
               <button
@@ -524,7 +541,7 @@ export default function App() {
                 className="inline-flex items-center justify-center bg-dis text-white hover:bg-dis-dark px-4 py-2 text-xs font-bold rounded-lg transition-colors shadow-xs"
                 id="reset-empty-filters-btn"
               >
-                Clear All Filter Conditions
+                {siteCopy.emptyState.clearButton}
               </button>
             </div>
           ) : viewMode === 'table' ? (
@@ -540,7 +557,7 @@ export default function App() {
                         className="py-4 px-4 font-bold border-r border-zinc-200 cursor-pointer hover:bg-zinc-50 select-none min-w-[220px]"
                       >
                         <div className="flex items-center justify-between">
-                          <span>Theme</span>
+                          <span>{siteCopy.table.theme}</span>
                           <ArrowUpDown className={`w-3.5 h-3.5 ml-1 ${sortField === 'theme' ? 'text-black font-bold' : 'text-zinc-400'}`} />
                         </div>
                       </th>
@@ -549,7 +566,7 @@ export default function App() {
                         className="py-4 px-4 font-bold border-r border-zinc-200 cursor-pointer hover:bg-zinc-50 select-none whitespace-nowrap"
                       >
                         <div className="flex items-center justify-between">
-                          <span>Paper ID</span>
+                          <span>{siteCopy.table.paperId}</span>
                           <ArrowUpDown className={`w-3.5 h-3.5 ml-1 ${sortField === 'paperId' ? 'text-black font-bold' : 'text-zinc-400'}`} />
                         </div>
                       </th>
@@ -558,7 +575,7 @@ export default function App() {
                         className="py-4 px-4 font-bold border-r border-zinc-200 cursor-pointer hover:bg-zinc-50 select-none min-w-[320px]"
                       >
                         <div className="flex items-center justify-between">
-                          <span>Title</span>
+                          <span>{siteCopy.table.title}</span>
                           <ArrowUpDown className={`w-3.5 h-3.5 ml-1 ${sortField === 'title' ? 'text-black font-bold' : 'text-zinc-400'}`} />
                         </div>
                       </th>
@@ -567,7 +584,7 @@ export default function App() {
                         className="py-4 px-4 font-bold border-r border-zinc-200 cursor-pointer hover:bg-zinc-50 select-none min-w-[170px]"
                       >
                         <div className="flex items-center justify-between">
-                          <span>Contact Author</span>
+                          <span>{siteCopy.table.contactAuthor}</span>
                           <ArrowUpDown className={`w-3.5 h-3.5 ml-1 ${sortField === 'contactAuthor' ? 'text-black font-bold' : 'text-zinc-400'}`} />
                         </div>
                       </th>
@@ -577,7 +594,7 @@ export default function App() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex flex-col text-left">
-                            <span>Meet Up Time</span>
+                            <span>{siteCopy.table.meetUpTime}</span>
                           </div>
                           <ArrowUpDown className={`w-3.5 h-3.5 ml-1 ${sortField === 'presentationDay' ? 'text-black font-bold' : 'text-zinc-400'}`} />
                         </div>
@@ -631,10 +648,10 @@ export default function App() {
                                 <span className={`inline-block px-3 py-1 rounded-none border ${getDayLabelBadgeStyles(poster.presentationDay)} text-[10px] font-mono font-bold uppercase tracking-tight w-full text-center transition-all`}>
                                   {poster.presentationDay.split(' ')[0]}
                                 </span>
-                                <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-tight text-center">Lunch 12:30–14:00</span>
+                                <span className="text-[9px] font-mono text-zinc-400 uppercase tracking-tight text-center">{siteCopy.table.lunchTime}</span>
                               </div>
                             ) : (
-                              <span className="text-zinc-400 font-mono italic text-[10px] block w-full text-center">Unassigned</span>
+                              <span className="text-zinc-400 font-mono italic text-[10px] block w-full text-center">{siteCopy.table.unassigned}</span>
                             )}
                           </td>
 
@@ -691,10 +708,10 @@ export default function App() {
                             <span className={`inline-block px-2.5 py-1 text-[10px] uppercase font-mono font-bold rounded-none border text-center ${getDayLabelBadgeStyles(poster.presentationDay)}`}>
                               {poster.presentationDay.split(' ')[0]} {/* Shorter text for space constraints */}
                             </span>
-                            <span className="text-[8px] font-mono text-zinc-400 uppercase tracking-tighter">Lunch 12:30–14:00</span>
+                            <span className="text-[8px] font-mono text-zinc-400 uppercase tracking-tighter">{siteCopy.table.lunchTime}</span>
                           </>
                         ) : (
-                          <span className="text-[10px] text-stone-400 font-mono italic">Unassigned</span>
+                          <span className="text-[10px] text-stone-400 font-mono italic">{siteCopy.table.unassigned}</span>
                         )}
                       </div>
 
@@ -713,13 +730,13 @@ export default function App() {
         <div className="max-w-7xl w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="space-y-1 text-center md:text-left">
             <div>
-              &copy; 2026 ACM DIS PWiP Poster Search.
+              {siteCopy.footer.copyright}
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <span className="text-dis-accent font-bold">DIS 2026</span>
+            <span className="text-dis-accent font-bold">{siteCopy.footer.eventLabel}</span>
             <span className="text-stone-600">|</span>
-            <span className="text-[10px] text-stone-500">Singapore</span>
+            <span className="text-[10px] text-stone-500">{siteCopy.footer.location}</span>
           </div>
         </div>
       </footer>
