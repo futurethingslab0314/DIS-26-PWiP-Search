@@ -259,7 +259,7 @@ export default function App() {
                         3-Day Full Exhibition & Connection
                       </h4>
                       <p className="text-stone-600 font-sans text-xs pl-3 leading-relaxed">
-                        All physical posters remain <strong>on display during all 3 days of the conference</strong>. Attendees are welcome to visit their posters at any time and connect with authors via email.
+                        All physical posters remain <strong>on display during all 3 days of the conference</strong>. Attendees are welcome to visit their posters at any time and connect with authors.
                       </p>
                     </div>
                   </div>
