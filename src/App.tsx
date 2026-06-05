@@ -26,6 +26,27 @@ function formatThemeLabel(theme: string) {
   return theme.replace(/^\d+\.\s*/, '');
 }
 
+function getThemeTableStyles(theme: string) {
+  if (theme.startsWith('1.')) {
+    return {
+      rowClassName: 'bg-[#FFF7F7] hover:bg-[#FCEBEC]',
+      themeCellClassName: 'bg-[#F8DCDD] text-[#7D1820]',
+    };
+  }
+
+  if (theme.startsWith('2.')) {
+    return {
+      rowClassName: 'bg-[#F7FBF5] hover:bg-[#EAF5E3]',
+      themeCellClassName: 'bg-[#DDEED2] text-[#2F5D1D]',
+    };
+  }
+
+  return {
+    rowClassName: 'bg-[#F6F8FC] hover:bg-[#E8EEF9]',
+    themeCellClassName: 'bg-[#DCE6F8] text-[#244A86]',
+  };
+}
+
 export default function App() {
   // --- States ---
   const [posters, setPosters] = useState<Poster[]>(POSTER_DATASET);
@@ -567,15 +588,15 @@ export default function App() {
                   {/* Table Body */}
                   <tbody className="divide-y divide-zinc-200 bg-white" id="table-body">
                     {filteredPosters.map((poster, index) => {
+                      const themeStyles = getThemeTableStyles(poster.theme);
+
                       return (
                         <tr 
                           key={poster.paperId}
-                          className={`${
-                            index % 2 === 1 ? 'bg-zinc-50/20' : 'bg-white'
-                          }`}
+                          className={`${themeStyles.rowClassName} transition-colors`}
                         >
                           {/* Theme Column */}
-                          <td className="py-3 px-4 text-xs font-semibold text-zinc-650 border-r border-zinc-150 max-w-[260px] truncate uppercase tracking-tight">
+                          <td className={`py-3 px-4 text-xs font-semibold border-r border-zinc-150 max-w-[260px] truncate uppercase tracking-tight ${themeStyles.themeCellClassName}`}>
                             {poster.theme.split('. ')[1] || poster.theme}
                           </td>
 
